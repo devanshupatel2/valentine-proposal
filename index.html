@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Will You Be My Valentine?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap");
+
+      body {
+        font-family: "Indie+Flower", cursive;
+        overflow: hidden;
+      }
+
+      .gradient-bg {
+        background: linear-gradient(180deg, #ffafbd 0%, #ffc3a0 100%);
+      }
+
+      /* Floating Heart Animation */
+      .heart {
+        position: absolute;
+        font-size: 24px;
+        animation: floatUp 4s linear infinite;
+        pointer-events: none;
+        z-index: -1; /* Behind everything */
+      }
+
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) scale(0.5);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(-110vh) scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      /* Button & Layout Styles */
+      #yesContainer {
+        transition: transform 0.3s ease-out;
+        transform-origin: top;
+        position: relative;
+        z-index: 50;
+      }
+
+      #noButton {
+        position: relative;
+        z-index: 0;
+        transition: all 0.2s ease;
+      }
+
+      /* Wiggle Animation */
+      @keyframes wiggle {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(-8deg);
+        }
+        75% {
+          transform: rotate(8deg);
+        }
+      }
+
+      .wiggle {
+        animation: wiggle 0.5s ease-in-out infinite; /* Continuous wiggle */
+      }
+    </style>
+  </head>
+  <body
+    class="gradient-bg min-h-screen flex flex-col items-center justify-center p-4 text-center"
+  >
+    <div
+      id="container"
+      class="bg-white/30 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full relative"
+    >
+      <div
+        class="mx-auto mb-6 w-48 h-48 overflow-hidden rounded-lg bg-transparent flex items-center justify-center"
+      >
+        <img
+          id="mainGif"
+          src="gifs/shy.gif"
+          class="w-full h-full object-contain border-none outline-none shadow-none bg-transparent"
+          style="
+            mix-blend-mode: multiply;
+            filter: drop-shadow(0 0 0 transparent);
+          "
+        />
+      </div>
+
+      <h1
+        id="question"
+        class="text-3xl font-bold text-gray-800 mb-8 relative z-50 pointer-events-none"
+      >
+        Will you be my Valentine?
+      </h1>
+
+      <div class="flex flex-col items-center justify-center gap-6">
+        <div id="yesContainer">
+          <button
+            id="yesButton"
+            class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition-colors border-b-4 border-green-700 active:border-b-0"
+          >
+            Yes!
+          </button>
+        </div>
+
+        <button
+          id="noButton"
+          class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg border-b-4 border-red-700 active:border-b-0"
+        >
+          No
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const yesButton = document.getElementById("yesButton");
+      const yesContainer = document.getElementById("yesContainer");
+      const noButton = document.getElementById("noButton");
+      const mainGif = document.getElementById("mainGif");
+      const container = document.getElementById("container");
+
+      let noCount = 0;
+      let yesSize = 1;
+      let heartIntervalTime = 300;
+      let heartTimer = null;
+
+      // Colors now work because we switched to text hearts
+      let activeColors = ["#ff0000", "#ff69b4"];
+      const extraColors = ["#ffa500", "#800080", "#0000ff", "#008000"];
+
+      // 1. Your Pet Names Phrases (Excluding the starting "No")
+      const petPhrases = [
+        "Wait, UB, are you sure?",
+        "Really sure, Cutu??",
+        "Think again, Kuchipoo!",
+        "Babe, don't do this to me...",
+        "Surely not, Cutiepie?",
+        "You're breaking my heart, UB ;(",
+        "Is that your final answer, Babe?",
+        "But Cutu, think of the treats!",
+        "Stop clicking this, Cutiepie!",
+        "UB, you're being so cold!",
+        "Change of mind, Kuchipoo?",
+        "You're making me cry, Babe...",
+        "Just click Yes already, Cutu! ❤️",
+      ];
+
+      // 2. Shuffle Logic
+      let availablePhrases = [...petPhrases];
+
+      function getRandomPhrase() {
+        if (availablePhrases.length === 0) {
+          availablePhrases = [...petPhrases]; // Reset once all pet names are used
+        }
+        const randomIndex = Math.floor(Math.random() * availablePhrases.length);
+        return availablePhrases.splice(randomIndex, 1)[0];
+      }
+
+      // --- Floating Hearts Logic ---
+      function createFloatingHeart() {
+        const heart = document.createElement("div");
+        // FIXED: Using HTML Entity for heart allows CSS coloring
+        heart.innerHTML = "&#10084;";
+        heart.classList.add("heart");
+
+        // Color Logic
+        const randomColor =
+          activeColors[Math.floor(Math.random() * activeColors.length)];
+        heart.style.color = randomColor;
+
+        // Position & Speed
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+        heart.style.fontSize = Math.random() * 20 + 20 + "px";
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+      }
+
+      function startHeartRain() {
+        if (heartTimer) clearInterval(heartTimer);
+        heartTimer = setInterval(createFloatingHeart, heartIntervalTime);
+      }
+
+      startHeartRain(); // Start immediately
+
+      // --- Interaction Logic ---
+      noButton.addEventListener("click", () => {
+        noCount++;
+
+        // A. Update Text: The very first click changes "No" to a random pet phrase
+        // and it will never be "No" again.
+        noButton.innerText = getRandomPhrase();
+
+        // B. Change GIF
+        let gifIndex = (noCount % 8) + 1;
+        mainGif.src = `gifs/sad${gifIndex}.gif`;
+
+        // C. Growth & Wiggle
+        yesSize += 0.15;
+        yesContainer.style.transform = `scale(${yesSize})`;
+        yesButton.classList.remove("wiggle");
+        void yesButton.offsetWidth;
+        yesButton.classList.add("wiggle");
+
+        // D. Shrink No Button
+        const noScale = Math.max(0.6, 1 - noCount * 0.05);
+        noButton.style.transform = `scale(${noScale})`;
+
+        // E. Escalation
+        if (heartIntervalTime > 20) {
+          heartIntervalTime -= 40;
+          startHeartRain();
+        }
+        if (noCount % 2 === 0 && extraColors.length > 0) {
+          activeColors.push(extraColors.shift());
+        }
+      });
+
+      yesButton.addEventListener("click", () => {
+        // A. Success Page - Fun & Victorious
+        container.innerHTML = `
+                <div class="flex flex-col items-center animate-bounce">
+                    <div class="w-64 h-64 overflow-hidden rounded-2xl bg-transparent mb-6">
+                        <img src="gifs/happy.gif" alt="Happy" 
+                             class="w-full h-full object-contain border-none outline-none shadow-none"
+                             style="mix-blend-mode: multiply;">
+                    </div>
+                    <h1 class="text-4xl font-bold text-pink-600 mb-4 drop-shadow-md">
+                        Yay!!! Best day ever, UB! ❤️
+                    </h1>
+                    <p class="text-gray-700 text-xl italic">
+                        Finally! I knew you'd give in, Cutu! 💖
+                    </p>
+                </div>
+            `;
+
+        // B. Infinite Fireworks
+        setInterval(() => {
+          const colors = [
+            "#ff0000",
+            "#ffa500",
+            "#ffff00",
+            "#ff00ff",
+            "#0000ff",
+          ];
+          const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+          confetti({
+            particleCount: 20,
+            spread: 360,
+            origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 },
+            colors: colors,
+            shapes: ["heart"],
+            disableForReducedMotion: true,
+          });
+        }, 500);
+      });
+    </script>
+  </body>
+</html>
