@@ -1,0 +1,204 @@
+@import url("https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap");
+
+body {
+  font-family: "Indie+Flower", cursive;
+  overflow: hidden;
+}
+
+.gradient-bg {
+  background: linear-gradient(180deg, #ffafbd 0%, #ffc3a0 100%);
+}
+
+/* Floating Heart Animation (Background) */
+.heart {
+  position: absolute;
+  font-size: 24px;
+  animation: floatUp 4s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-110vh) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Ensure the text sits on top of the floating envelopes */
+#container {
+  position: relative;
+  z-index: 10;
+}
+
+/* Button & Layout Styles */
+/* 1. The Container (Keeps the growing animation working) */
+/* 1. The Container (Keeps the growing animation working) */
+#yesContainer {
+  transition: transform 0.3s ease-out;
+  /* Changed from 'top left' to '30% top'.
+     This makes it grow a little bit to the left, 
+     but mostly still to the right. 
+  */
+  transform-origin: 30% top;
+  position: relative;
+  z-index: 50;
+}
+
+/* 2. The YES Button (The new pink pill style) */
+#yesButton {
+  font-family: "Indie Flower", cursive;
+  font-weight: bold;
+  font-size: 1.5rem;
+  padding: 12px 32px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#yesButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 20, 147, 0.6);
+}
+
+/* 3. The NO Button (Merged layout + new ghost style) */
+#noButton {
+  /* Layout (Keep these!) */
+  position: relative;
+  z-index: 0;
+
+  /* Visuals (New!) */
+  font-family: "Indie Flower", cursive;
+  font-weight: bold;
+  font-size: 1.5rem;
+  padding: 12px 32px;
+  border-radius: 50px;
+  cursor: pointer;
+  background: white;
+  color: #ff69b4;
+  border: 2px solid #ffb6c1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+#noButton:hover {
+  background: #fff0f5;
+  border-color: #ff69b4;
+  color: #ff1493;
+}
+
+/* Wiggle Animation */
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
+.wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+/* --- New Styles for Floating Messages --- */
+
+.floating-note {
+  position: absolute;
+  font-size: 30px;
+  cursor: pointer;
+  animation: floatAround 8s ease-in-out infinite;
+  transition: transform 0.3s;
+  z-index: 20;
+  user-select: none;
+  transition: transform 0.3s ease;
+}
+
+.floating-note:hover {
+  transform: scale(1.2) rotate(10deg);
+  filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8));
+
+  animation-play-state: paused;
+}
+
+@keyframes floatAround {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, -50px) rotate(10deg);
+  }
+  66% {
+    transform: translate(-20px, 20px) rotate(-5deg);
+  }
+}
+
+/* The Popup Message Modal */
+.message-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.message-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 20px;
+  max-width: 80%;
+  text-align: center;
+  transform: scale(0.8);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 4px solid #ff69b4;
+}
+
+.message-modal.show .modal-content {
+  transform: scale(1);
+}
+
+/* --- Gentle Bounce Animation --- */
+@keyframes gentleBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-50px); /* Moves up just a little bit */
+  }
+}
+
+.gentle-bounce {
+  animation: gentleBounce 1.25s ease-in-out infinite; /* 2.5s is much slower and smoother */
+}
